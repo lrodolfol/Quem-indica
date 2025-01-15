@@ -1,4 +1,7 @@
 using API.Configuration;
+using API.Middleware;
+using API.Models.Dto;
+using Microsoft.AspNetCore.Mvc;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.LoadAppSettings();
-builder.DataBaseConnection();
+builder.LoadDataBaseConnection();
+builder.LoadDependencies();
 
 var app = builder.Build();
 
@@ -27,25 +31,12 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", () =>
+app.MapPost("/client", async ([FromBody ]ClientDto dto, [FromServices] ClientMid mid) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    await mid.CreateIfIsValid(dto);
 })
-.WithName("GetWeatherForecast")
+.WithName("CreateClient")
 .WithOpenApi();
 //===FIM MAPEAMENTO DAS APIS
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

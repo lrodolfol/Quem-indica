@@ -4,7 +4,7 @@ public static class LoadConfig
 {
     public static void LoadAppSettings(this WebApplicationBuilder builder)
     {
-        var env = Environment.GetEnvironmentVariable(nameof(Enviroment));
+        var env = Environment.GetEnvironmentVariable(nameof(Enviroment)) ?? "dev";
         if (env is not null)
             env = env.ToLower();
 

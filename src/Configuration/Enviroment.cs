@@ -2,7 +2,7 @@
 
 public enum Enviroment
 {
-    PROD = 0,
-    UAT = 1,
-    DEV = 2
+    prod = 0,
+    uat = 1,
+    dev = 2
 }

@@ -5,13 +5,13 @@ using System.Text.Json;
 
 namespace API.Configuration;
 
-public static class DependecyInjection
+public static class DataBaseDependencies
 {
-    public static void DataBaseConnection(this WebApplicationBuilder builder)
+    public static void LoadDataBaseConnection(this WebApplicationBuilder builder)
     {
         builder.Services.AddSingleton<Connection>(x =>
         {
-            if (Environment.GetEnvironmentVariable(nameof(Enviroment)) == nameof(Enviroment.DEV))
+            if (Environment.GetEnvironmentVariable(nameof(Enviroment)) == nameof(Enviroment.dev))
             {
                 var dataBaseCredentials = new DataBaseCredentials
                 {

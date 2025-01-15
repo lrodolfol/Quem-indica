@@ -38,7 +38,7 @@ public class MysqlClientRepository : IGenericRepository, IClientRepository, IDis
 
         var rowsAffedtec = await Connection._mysqlConnection.ExecuteAsync
             (
-            $@"INSERT INTO {tableName} ('Name','FictitiousName','Segment','Active') VALUES (@Name,@FictitiousName,@Segment,@Active)",
+            $@"INSERT INTO {tableName} (Name,FictitiousName,Segment,Active) VALUES (@Name,@FictitiousName,@Segment,@Active)",
             client
             );
     }
