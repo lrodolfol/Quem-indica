@@ -1,4 +1,5 @@
-﻿using API.Models.Entities;
+﻿using API.Models.Dto;
+using API.Models.Entities;
 using API.Repository.Implementation;
 
 namespace API.Middleware;
@@ -12,8 +13,9 @@ public class CliendMid
         _repository = repository;
     }
 
-    public async Task Create(Client client)
+    public async Task Create(ClientDto dto)
     {
-        _repository.PostAsync(client);
+        Client client = dto;
+        await _repository.PostAsync(client);
     }
 }

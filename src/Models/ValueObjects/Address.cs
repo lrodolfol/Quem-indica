@@ -12,4 +12,16 @@ public class Address : Entitie
     public string? Street { get; private set; }
     public string? Additional { get; private set; }
     public int Number { get; private set; }
+
+    public Address(string? country, string? state, string? city, string? zipCode, string? district, string? street, string? additional, int number)
+    {
+        Country = country;
+        State = state;
+        City = city;
+        ZipCode = zipCode;
+        District = district;
+        Street = street;
+        Additional = additional;
+        Number = number;
+    }
 }
