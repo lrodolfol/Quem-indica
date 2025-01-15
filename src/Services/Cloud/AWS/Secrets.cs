@@ -1,52 +1,36 @@
-﻿using Amazon.SecretsManager;
-using Amazon.SecretsManager.Model;
+﻿using Amazon.SimpleSystemsManagement;
+using Amazon.SimpleSystemsManagement.Model;
 
 namespace API.Services.Cloud.AWS;
 
 public sealed class Secrets : ISecretsSuport
 {
-    public string IDKey { get; private set; }
+    public string AccessKey { get; private set; }
     public string SecretKey { get; private set; }
     public string Region { get; private set; }
-    private const string DATABASESECRETS = "DATABASESECRETS";
+    private const string DATABASESECRETS = "DatabseSecrets-quem-indica";
 
-    public Secrets(string iDKey, string secretKey, string region = "us-eats-1")
+    public Secrets(string accessKey, string secretKey, string region)
     {
-        IDKey = iDKey;
+        AccessKey = accessKey;
         SecretKey = secretKey;
         Region = region;
     }
 
     public string GetDataBaseSecrets()
     {
-        var client = new AmazonSecretsManagerClient(IDKey, SecretKey, Region);
+        Amazon.RegionEndpoint regionObj = Amazon.RegionEndpoint.GetBySystemName(Region);
+        using (var client = new AmazonSimpleSystemsManagementClient(AccessKey, SecretKey, regionObj))
+        {
+            var response = client.GetParameterAsync
+                (
+                    new GetParameterRequest()
+                    {
+                        Name = DATABASESECRETS
+                    }
+                ).Result;
 
-        var request = new GetSecretValueRequest
-        {
-            SecretId = DATABASESECRETS
-        };
-
-        GetSecretValueResponse response = client.GetSecretValueAsync(request).Result;
-        return DecodeString(response);
-    }
-
-    public static string DecodeString(GetSecretValueResponse response)
-    {
-        if (response.SecretString is not null)
-        {
-            var secret = response.SecretString;
-            return secret;
-        }
-        else if (response.SecretBinary is not null)
-        {
-            var memoryStream = response.SecretBinary;
-            StreamReader reader = new StreamReader(memoryStream);
-            string decodedBinarySecret = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(reader.ReadToEnd()));
-            return decodedBinarySecret;
-        }
-        else
-        {
-            return string.Empty;
+            return response.Parameter.Value ?? "";
         }
     }
 }

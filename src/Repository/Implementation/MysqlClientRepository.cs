@@ -1,37 +1,49 @@
 ﻿using API.Models.Entities;
 using API.Models.Enums;
 using API.Repository.Abstraction;
+using Dapper;
+using System.Text.Json;
 
 namespace API.Repository.Implementation;
 
 public class MysqlClientRepository : IGenericRepository, IClientRepository, IDisposable
 {
     private Connection Connection;
+    private string tableName = "client";
 
     public MysqlClientRepository(Connection connection)
     {
         Connection = connection;
     }
 
-    public Task DeleteAsync<T>(int id)
+    public Task DeleteAsync<T>(int id) where T : Entitie
     {
         Connection._mysqlConnection.OpenAsync();
         throw new NotImplementedException();
     }
 
-    public Task<T> GetAsync<T>(int id)
+    public Task<T> GetAsync<T>(int id) where T : Entitie
     {
         Connection._mysqlConnection.OpenAsync();
         throw new NotImplementedException();
     }
 
-    public Task PostAsync<T>(T entity)
+    public async Task PostAsync<T>(T entity) where T : Entitie
     {
-        Connection._mysqlConnection.OpenAsync();
-        throw new NotImplementedException();
+        await Connection._mysqlConnection.OpenAsync();
+        var client = ConvertToEntitie(entity);
+
+        if (client is null)
+            return;
+
+        var rowsAffedtec = await Connection._mysqlConnection.ExecuteAsync
+            (
+            $@"INSERT INTO {tableName} ('Name','FictitiousName','Segment','Active') VALUES (@Name,@FictitiousName,@Segment,@Active)",
+            client
+            );
     }
 
-    public Task PutAsync<T>(int id, T entity)
+    public Task PutAsync<T>(int id, T entity) where T : Entitie
     {
         Connection._mysqlConnection.OpenAsync();
         throw new NotImplementedException();
@@ -41,6 +53,19 @@ public class MysqlClientRepository : IGenericRepository, IClientRepository, IDis
     {
         Connection._mysqlConnection.OpenAsync();
         throw new NotImplementedException();
+    }
+    private static Client? ConvertToEntitie<T>(T entity) where T : Entitie
+    {
+        try
+        {
+            var jsonClient = JsonSerializer.Serialize(entity);
+            var client = JsonSerializer.Deserialize<Client>(jsonClient);
+            return client;
+        }
+        catch
+        {
+            throw;
+        }
     }
     public void Dispose()
     {

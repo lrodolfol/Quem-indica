@@ -1,8 +1,6 @@
-﻿using API.Models.Entities;
+﻿namespace API.Models.Dto;
 
-namespace API.Models.ValueObjects;
-
-public class Address : Entitie
+public class AddressDto
 {
     public string? Country { get; private set; }
     public string? State { get; private set; }

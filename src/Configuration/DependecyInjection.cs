@@ -12,7 +12,18 @@ public static class DependecyInjection
         builder.Services.AddSingleton<Connection>(x =>
         {
             if (Environment.GetEnvironmentVariable(nameof(Enviroment)) == nameof(Enviroment.DEV))
-                return LoadDeveloperConnection();
+            {
+                var dataBaseCredentials = new DataBaseCredentials
+                {
+                    DataBase = builder.Configuration["DataBaseConnection:database"] ?? "quem-indica",
+                    Server = builder.Configuration["DataBaseConnection:server"] ?? "localhost",
+                    Password = builder.Configuration["DataBaseConnection:password"] ?? "sinqia123",
+                    Port = uint.Parse(builder.Configuration["DataBaseConnection:port"] ?? "3306"),
+                    UserID = builder.Configuration["DataBaseConnection:userId"] ?? "root",
+                };
+
+                return LoadDeveloperConnection(dataBaseCredentials);
+            }
             else 
             {
                 var accessKey = builder.Configuration["Cloud:Aws:AccessKey"] ?? "";
@@ -24,15 +35,15 @@ public static class DependecyInjection
         });
     }
 
-    private static Connection LoadDeveloperConnection()
+    private static Connection LoadDeveloperConnection(DataBaseCredentials dataBaseCredentials)
     {
         var conStr = new MySqlConnectionStringBuilder
         {
-            Server = "",
-            Password = "",
-            UserID = "",
-            Port = 0,
-            Database = "",
+            Server = dataBaseCredentials.Server,
+            Password = dataBaseCredentials.Password,
+            UserID = dataBaseCredentials.UserID,
+            Port = dataBaseCredentials.Port,
+            Database = dataBaseCredentials.DataBase,
         };
 
         return new Connection
@@ -44,7 +55,7 @@ public static class DependecyInjection
     private static Connection LoadImplantationConnection(string accessKey, string secretKey, string region)
     {
         var jsonSecrets = new Secrets(accessKey, secretKey, region).GetDataBaseSecrets();
-        var awsDataBaseSecrets = JsonSerializer.Deserialize<AWSDataBaseSecrets>(jsonSecrets);
+        var awsDataBaseSecrets = JsonSerializer.Deserialize<DataBaseCredentials>(jsonSecrets);
 
         var conStr = new MySqlConnectionStringBuilder
         {
@@ -62,10 +73,11 @@ public static class DependecyInjection
     }
 }
 
-internal class AWSDataBaseSecrets
+internal class DataBaseCredentials
 {
-    public string UserName { get; set; } = null!;
+    public string UserID { get; set; } = null!;
     public string Password { get; set; } = null!;
     public string Server { get; set; } = null!;
     public string DataBase { get; set; } = null!;
+    public uint Port { get; set; }
 }
