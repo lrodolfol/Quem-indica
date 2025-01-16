@@ -9,7 +9,7 @@ public static class DataBaseDependencies
 {
     public static void LoadDataBaseConnection(this WebApplicationBuilder builder)
     {
-        builder.Services.AddSingleton<Connection>(x =>
+        builder.Services.AddScoped<Connection>(x =>
         {
             if (Environment.GetEnvironmentVariable(nameof(Enviroment)) == nameof(Enviroment.dev))
             {
