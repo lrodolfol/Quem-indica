@@ -2,6 +2,7 @@ using API.Configuration;
 using API.Middleware;
 using API.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

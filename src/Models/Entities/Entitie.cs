@@ -2,6 +2,6 @@
 
 public abstract class Entitie
 {
-    public Guid Id { get; private set; }
-    public bool Active { get; private set; } = true;
+    public uint Id { get; protected set; }
+    public bool Active { get; protected set; } = true;
 }

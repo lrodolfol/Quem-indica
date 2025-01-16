@@ -13,19 +13,17 @@ public class AddressMid
         _repository = repository;
     }
 
-    public async Task<bool> CreateIfIsValid(AddressDto dto)
+    public async Task<int> CreateIfIsValidAndReturnLastIdAsync(AddressDto dto)
     {
         if (!dto.Validate())
-            return false;
+            return 0;
         else
-            return await Create(dto);
+            return await CreateAndReturnLastIdAsync(dto);
     }
 
-    private async Task<bool> Create(AddressDto dto)
+    private async Task<int> CreateAndReturnLastIdAsync(AddressDto dto)
     {
         Address address = dto;
-        await _repository.PostAsync(address);
-
-        return true;
+        return await _repository.PostReturnLastIdAsync(address);
     }
 }

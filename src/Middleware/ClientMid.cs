@@ -1,6 +1,7 @@
 ﻿using API.Models.Dto;
 using API.Models.Entities;
 using API.Models.ReturnView;
+using API.Models.ValueObjects;
 using API.Repository.Abstraction;
 
 namespace API.Middleware;
@@ -24,16 +25,23 @@ public class ClientMid
             apiView.SetValues(dto.Notifications.ToList(), 400, false);
         else
         {
-            if (await AddressMid.CreateIfIsValid(dto.Address))
-                await Create(dto);
+            var IdAddressCreated = await AddressMid.CreateIfIsValidAndReturnLastIdAsync(dto.Address);
+            if (IdAddressCreated > 0)
+                await Create(dto, (uint)IdAddressCreated);
             else
-                apiView.SetValues("Houve uma falha no cadastro. Contate o time de suporte - SCD851", 500, false);
+                apiView.SetValues(
+                    dto.Address.Notifications.ToList(),
+                    dto.Address.Notifications.Count > 0 ? (ushort)400 : (ushort)500,
+                    false
+                );
         }
     }
 
-    private async Task Create(ClientDto dto)
+    private async Task Create(ClientDto dto, uint addressId)
     {
         Client client = dto;
+        client.SetAddressId(addressId);
+
         await _repository.PostAsync(client);
         apiView.SetCode(201);
     }

@@ -3,16 +3,16 @@ using API.Models.ValueObjects;
 
 namespace API.Models.Dto;
 
-public class AddressDto : BaseDto
+public sealed class AddressDto : BaseDto
 {
-    public string Country { get; private set; } = null!;
-    public string State { get; private set; } = null!;
-    public string City { get; private set; } = null!;
-    public string ZipCode { get; private set; } = null!;
-    public string District { get; private set; } = null!;
-    public string Street { get; private set; } = null!;
-    public string Additional { get; private set; } = null!;
-    public ushort Number { get; private set; }
+    public string Country { get; set; } = null!;
+    public string State { get; set; } = null!;
+    public string City { get; set; } = null!;
+    public string ZipCode { get; set; } = null!;
+    public string District { get; set; } = null!;
+    public string Street { get; set; } = null!;
+    public string Additional { get; set; } = null!;
+    public ushort Number { get; set; }
 
     public override bool Validate()
     {
@@ -28,5 +28,5 @@ public class AddressDto : BaseDto
     }
 
     public static implicit operator Address(AddressDto dto) =>
-        new Address(dto.Country, dto.State, dto.City, dto.ZipCode,dto.District, dto.Street, dto.Additional, dto.Number);    
+        new Address(dto.Country, dto.State, dto.City, dto.ZipCode, dto.District, dto.Street, dto.Additional, dto.Number);
 }

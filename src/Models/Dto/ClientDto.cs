@@ -1,9 +1,10 @@
 ﻿using API.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace API.Models.Dto;
 
-public sealed class ClientDto : BaseDto
+public class ClientDto : BaseDto
 {
     [Required(ErrorMessage = "Nome não pode ser vazio")]
     [StringLength(50, MinimumLength = 2, ErrorMessage = "Nome deve ter entre 2 e 50 caracteres")]
@@ -14,6 +15,7 @@ public sealed class ClientDto : BaseDto
     [Required(ErrorMessage = "Obrigatório preenchimento do endereço")]
     public AddressDto Address { get; set; } = null!;
     [Required(ErrorMessage = "Obrigatório o preechimento do segmento")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public ESegment Segment { get; set; }
 
     public override bool Validate()
