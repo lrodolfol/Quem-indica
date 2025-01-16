@@ -1,18 +1,20 @@
 ﻿using API.Models.Dto;
 using API.Models.Entities;
 using API.Models.ReturnView;
-using API.Repository.Implementation;
+using API.Repository.Abstraction;
 
 namespace API.Middleware;
 
 public class ClientMid
 {
-    private readonly MysqlClientRepository _repository;
+    private readonly IClientRepository _repository;
+    private readonly AddressMid AddressMid;
     public ApiView apiView { get; set; }
 
-    public ClientMid(MysqlClientRepository repository)
+    public ClientMid(IClientRepository repository, AddressMid addressMid)
     {
         _repository = repository;
+        AddressMid = addressMid;
         apiView = new ApiView();
     }
 
@@ -21,7 +23,12 @@ public class ClientMid
         if (!dto.Validate())
             apiView.SetValues(dto.Notifications.ToList(), 400, false);
         else
-            await Create(dto);
+        {
+            if (await AddressMid.CreateIfIsValid(dto.Address))
+                await Create(dto);
+            else
+                apiView.SetValues("Houve uma falha no cadastro. Contate o time de suporte - SCD851", 500, false);
+        }
     }
 
     private async Task Create(ClientDto dto)

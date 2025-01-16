@@ -8,4 +8,5 @@ public abstract class BaseDto
         _notifications.Add(notification);
     protected void AddNotifications(string[] notification) =>
         _notifications.AddRange(notification);
+    public abstract bool Validate();
 }

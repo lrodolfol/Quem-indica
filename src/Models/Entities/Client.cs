@@ -8,10 +8,10 @@ public class Client : Entitie
 {
     public string Name { get; set; } = null!;
     public string FictitiousName { get; private set; } = null!;
-    public Address? Address { get; private set; }
     public ESegment Segment { get; set; } = ESegment.Desconhecido;
+    public Address? Address { get; private set; }    
 
-    public Client(string name, string fictitiousName, Address? address, ESegment segment)
+    public Client(string name, string fictitiousName, ESegment segment, Address? address)
     {
         Name = name;
         FictitiousName = fictitiousName;
@@ -24,6 +24,6 @@ public class Client : Entitie
         var address = new Address(dto.Address.Country, dto.Address.State, dto.Address.City, dto.Address.ZipCode, 
             dto.Address.District, dto.Address.Street, dto.Address.Additional, dto.Address.Number);
 
-        return new Client(dto.Name, dto.FictitiousName, address, dto.Segment);
+        return new Client(dto.Name, dto.FictitiousName, dto.Segment, address);
     }
 }

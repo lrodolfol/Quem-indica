@@ -17,4 +17,10 @@ public sealed class ApiView
         Code = code;
         Success = success;
     }
+    public void SetValues(string message, ushort code, bool success)
+    {
+        Message.Add(message);
+        Code = code;
+        Success = success;
+    }
 }

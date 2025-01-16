@@ -16,7 +16,7 @@ public sealed class ClientDto : BaseDto
     [Required(ErrorMessage = "Obrigatório o preechimento do segmento")]
     public ESegment Segment { get; set; }
 
-    public bool Validate()
+    public override bool Validate()
     {
         if(string.IsNullOrWhiteSpace(Name)) AddNotifications("Nome não pode ser vazio");
         if(string.IsNullOrWhiteSpace(FictitiousName)) AddNotifications("Apelido não pode ser vazio");
