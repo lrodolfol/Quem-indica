@@ -19,6 +19,9 @@ public class Client : Entitie
         Address = address;
         Segment = segment;
     }
+    public Client()
+    {
+    }
 
     public static implicit operator Client (ClientDto dto)
     {
@@ -29,4 +32,5 @@ public class Client : Entitie
     }
 
     public void SetAddressId(uint id) => AddressId = id;
+    public void SetAddress(Address address) => Address = address;
 }

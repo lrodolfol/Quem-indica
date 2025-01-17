@@ -24,6 +24,9 @@ public class Address : Entitie
         Additional = additional;
         Number = number;
     }
+    public Address()
+    {
+    }
 
     public void SetId(uint id) => Id = id;
 }

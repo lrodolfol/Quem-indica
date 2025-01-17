@@ -1,8 +1,8 @@
 ﻿using API.Models.Dto;
 using API.Models.Entities;
 using API.Models.ReturnView;
-using API.Models.ValueObjects;
 using API.Repository.Abstraction;
+using System.Net;
 
 namespace API.Middleware;
 
@@ -22,7 +22,7 @@ public class ClientMid
     public async Task CreateIfIsValid(ClientDto dto)
     {
         if (!dto.Validate())
-            apiView.SetValues(dto.Notifications.ToList(), 400, false);
+            apiView.SetValues(dto.Notifications.ToList(), HttpStatusCode.BadRequest, false);
         else
         {
             var IdAddressCreated = await AddressMid.CreateIfIsValidAndReturnLastIdAsync(dto.Address);
@@ -31,7 +31,7 @@ public class ClientMid
             else
                 apiView.SetValues(
                     dto.Address.Notifications.ToList(),
-                    dto.Address.Notifications.Count > 0 ? (ushort)400 : (ushort)500,
+                    dto.Address.Notifications.Count > 0 ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError,
                     false
                 );
         }
@@ -43,6 +43,16 @@ public class ClientMid
         client.SetAddressId(addressId);
 
         await _repository.PostAsync(client);
-        apiView.SetCode(201);
+        apiView.SetCode(HttpStatusCode.Created);
+    }
+
+    public async Task GetAsync(uint id)
+    {
+        Client client = await _repository.GetAsync(id);
+
+        if (client is null)
+            apiView.SetValues("Id de client não encontrado", HttpStatusCode.NotFound, false);
+        else
+            apiView.SetData(client);
     }
 }
