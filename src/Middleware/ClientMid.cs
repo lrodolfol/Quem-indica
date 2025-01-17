@@ -55,4 +55,11 @@ public class ClientMid
         else
             apiView.SetData(client);
     }
+
+    public async Task GetAsync(uint limit, uint offetPageNumber)
+    {
+        IEnumerable<Client>? client = await _repository.GetAsync(limit, offetPageNumber);
+
+        apiView.SetData(client);
+    }
 }

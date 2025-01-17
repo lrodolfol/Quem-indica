@@ -29,12 +29,21 @@ public static class ClientEndpoints
     }
     private static void Get(this WebApplication app)
     {
-        app.MapPost("/client/{cliendId}", async ([FromQuery] uint cliendId, [FromServices] ClientMid mid) =>
+        app.MapGet("/client/{cliendId}", async ([FromQuery] uint cliendId, [FromServices] ClientMid mid) =>
         {
             await mid.GetAsync(cliendId);
             return mid.apiView;
         })
         .WithName("GetClient")
         .WithOpenApi();
+
+        app.MapGet("/client/", async ([FromServices] ClientMid mid, [FromQuery] uint limit = 25, [FromQuery] uint offset = 0) =>
+        {
+            await mid.GetAsync(limit, offset);
+            return mid.apiView;
+        })
+        .WithName("GetClients")
+        .WithOpenApi();
     }
+
 }

@@ -3,7 +3,6 @@ using API.Models.Enums;
 using API.Models.ValueObjects;
 using API.Repository.Abstraction;
 using Dapper;
-using Microsoft.AspNetCore.Http;
 
 namespace API.Repository.Implementation;
 
@@ -38,9 +37,13 @@ public class MysqlClientRepository : IClientRepository, IDisposable
 
         return entity.First();
     }
-    public Task<IEnumerable<Client>> GetAsync(uint limit, uint offset)
+    public async Task<IEnumerable<Client>> GetAsync(uint limit, uint offset)
     {
-        throw new NotImplementedException();
+        await Connection._mysqlConnection.OpenAsync();
+        string queryBuilder = $"SELECT * FROM {TABLENAME} t INNER JOIN {FISRTTABLERELATIONSHIPNAME} r ON t.{FIRSTFOREIGNKEYTABLE} = r.{FIRSTPRIMARYKEYRELATIONSHIP} LIMIT {limit} OFFSET {offset}";
+        IEnumerable<Client> entity = await Connection._mysqlConnection.QueryAsync(queryBuilder, GetEntityWithRelationShip());
+
+        return entity;
     }
 
     public async Task PostAsync(Client entity)
