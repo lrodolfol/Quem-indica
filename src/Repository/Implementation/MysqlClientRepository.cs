@@ -54,11 +54,16 @@ public class MysqlClientRepository : IClientRepository, IDisposable
     {
         await OpenDatabase();
 
-        await Connection._mysqlConnection.ExecuteAsync
-            (
-            $@"INSERT INTO {TABLENAME} (Name,FictitiousName,Segment,Active,AddressId) VALUES (@Name,@FictitiousName,@Segment,@Active,@AddressId)",
-            entity
-            );
+        var query = $@"INSERT INTO {TABLENAME} (Name,FictitiousName,Segment,Active,AddressId) VALUES (@Name,@FictitiousName,@Segment,@Active,@AddressId)";
+        var parameters = new
+        {
+            entity.Name,
+            entity.FictitiousName,
+            Segment = entity.Segment.ToString(),
+            entity.Active,
+            entity.AddressId
+        };
+        await Connection._mysqlConnection.ExecuteAsync(query,parameters);
     }
 
     public async Task PutAsync(uint id, Client entity)
