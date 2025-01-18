@@ -9,25 +9,29 @@ public static class ClientEndpoints
 {
     public static void CreateClientEndpoints(this WebApplication app)
     {
-        Post(app);
-        Get(app);
+        PostAsync(app);
+        GetAsync(app);
+        PutAsync(app);
     }
 
-    private static void Post(this WebApplication app)
+    private static void PostAsync(this WebApplication app)
     {
         app.MapPost("/client", async ([FromBody] ClientDto dto, [FromServices] ClientMid mid) =>
                 {
                     await mid.CreateIfIsValid(dto);
 
-                    return mid.apiView.HttpStatusCode == HttpStatusCode.Created ?
-                        Results.Created("GetClient", mid.apiView) :
-                        Results.StatusCode((int)mid.apiView.HttpStatusCode);
+                    if (mid.apiView.HttpStatusCode == HttpStatusCode.Created)
+                        return Results.Created("GetClient", mid.apiView);
+                    else if (mid.apiView.HttpStatusCode == HttpStatusCode.BadRequest)
+                        return Results.BadRequest(mid.apiView);
+                    else
+                        return Results.StatusCode((int)mid.apiView.HttpStatusCode);
                 })
         .WithName("CreateClient")
         .Produces((int)HttpStatusCode.Created).Produces((int)HttpStatusCode.InternalServerError).Produces((int)HttpStatusCode.BadRequest)
         .WithOpenApi();
     }
-    private static void Get(this WebApplication app)
+    private static void GetAsync(this WebApplication app)
     {
         app.MapGet("/client/{cliendId}", async ([FromQuery] uint cliendId, [FromServices] ClientMid mid) =>
         {
@@ -44,6 +48,21 @@ public static class ClientEndpoints
         })
         .WithName("GetClients")
         .WithOpenApi();
+    }
+
+    private static void PutAsync(WebApplication app)
+    {
+        app.MapPut("client/{clientId}", async ([FromQuery] uint clientId, [FromBody] ClientDto dto, [FromServices] ClientMid mid) =>
+        {
+            await mid.UpdateIfIsValid(clientId, dto);
+
+            if (mid.apiView.HttpStatusCode == HttpStatusCode.NoContent)
+                return Results.NoContent();
+            else if(mid.apiView.HttpStatusCode == HttpStatusCode.BadRequest)
+                return Results.BadRequest(mid.apiView);
+            else 
+                return Results.StatusCode((int)mid.apiView.HttpStatusCode);
+        });
     }
 
 }
