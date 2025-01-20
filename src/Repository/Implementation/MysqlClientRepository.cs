@@ -3,7 +3,6 @@ using API.Models.Enums;
 using API.Models.ValueObjects;
 using API.Repository.Abstraction;
 using Dapper;
-using MySqlConnector;
 using System.Data;
 
 namespace API.Repository.Implementation;
@@ -24,15 +23,19 @@ public class MysqlClientRepository : IClientRepository, IDisposable
         Connection = connection;
     }
 
-    public Task DeleteAsync(uint id)
+    public async Task DeleteAsync(uint id)
     {
-        Connection._mysqlConnection.OpenAsync();
-        throw new NotImplementedException();
+        await OpenDatabaseIfClose();
+
+        var query = $"DELETE FROM {TABLENAME} WHERE {PRIMARYKEYTABLE} = @Id";
+        var parameters = new { Id = id };
+
+        await Connection._mysqlConnection.ExecuteAsync(query, parameters);
     }
 
     public async Task<Client> GetAsync(uint id)
     {
-        await OpenDatabase();
+        await OpenDatabaseIfClose();
 
         var parameters = new { Id = id };
         string queryBuilder = $"SELECT * FROM {TABLENAME} t INNER JOIN {FISRTTABLERELATIONSHIPNAME} r ON t.{FIRSTFOREIGNKEYTABLE} = r.{FIRSTPRIMARYKEYRELATIONSHIP} WHERE t.{PRIMARYKEYTABLE} = {@id}";
@@ -42,7 +45,7 @@ public class MysqlClientRepository : IClientRepository, IDisposable
     }
     public async Task<IEnumerable<Client>> GetAsync(uint limit, uint offset)
     {
-        await OpenDatabase();
+        await OpenDatabaseIfClose();
 
         string queryBuilder = $"SELECT * FROM {TABLENAME} t INNER JOIN {FISRTTABLERELATIONSHIPNAME} r ON t.{FIRSTFOREIGNKEYTABLE} = r.{FIRSTPRIMARYKEYRELATIONSHIP} LIMIT {limit} OFFSET {offset}";
         IEnumerable<Client> entity = await Connection._mysqlConnection.QueryAsync(queryBuilder, GetEntityWithRelationShip());
@@ -52,7 +55,7 @@ public class MysqlClientRepository : IClientRepository, IDisposable
 
     public async Task PostAsync(Client entity)
     {
-        await OpenDatabase();
+        await OpenDatabaseIfClose();
 
         var query = $@"INSERT INTO {TABLENAME} (Name,FictitiousName,Segment,Active,AddressId) VALUES (@Name,@FictitiousName,@Segment,@Active,@AddressId)";
         var parameters = new
@@ -68,7 +71,7 @@ public class MysqlClientRepository : IClientRepository, IDisposable
 
     public async Task PutAsync(uint id, Client entity)
     {
-        await OpenDatabase();
+        await OpenDatabaseIfClose();
 
         var query = $"UPDATE {TABLENAME} C SET Name = @Name, FictitiousName = @FictitiousName, Segment = @Segment, Active = @Active WHERE C.{PRIMARYKEYTABLE} = @id";
         var parameters = new {
@@ -101,7 +104,7 @@ public class MysqlClientRepository : IClientRepository, IDisposable
         };
     }
 
-    private async Task OpenDatabase()
+    private async Task OpenDatabaseIfClose()
     {
         if(Connection._mysqlConnection.State == ConnectionState.Closed)
             await Connection._mysqlConnection.OpenAsync();

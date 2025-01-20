@@ -53,23 +53,6 @@ public class ClientMid
         apiView.SetCode(HttpStatusCode.Created);
     }
 
-    public async Task GetAsync(uint id)
-    {
-        Client client = await _repository.GetAsync(id);
-
-        if (client is null)
-            apiView.SetValues("Id de client não encontrado", HttpStatusCode.NotFound, false);
-        else
-            apiView.SetData(client);
-    }
-
-    public async Task GetAsync(uint limit, uint offetPageNumber)
-    {
-        IEnumerable<Client>? client = await _repository.GetAsync(limit, offetPageNumber);
-
-        apiView.SetData(client);
-    }
-
     public async Task UpdateIfIsValid(uint id, ClientDto dto)
     {
         try
@@ -97,5 +80,34 @@ public class ClientMid
 
         await _repository.PutAsync(id, dto);
         apiView.SetCode(HttpStatusCode.NoContent);
+    }
+
+    public async Task GetAsync(uint id)
+    {
+        Client client = await _repository.GetAsync(id);
+
+        if (client is null)
+            apiView.SetValues("Id de client não encontrado", HttpStatusCode.NotFound, false);
+        else
+            apiView.SetData(client);
+    }
+
+    public async Task GetAsync(uint limit, uint offetPageNumber)
+    {
+        IEnumerable<Client>? client = await _repository.GetAsync(limit, offetPageNumber);
+
+        apiView.SetData(client);
+    }
+
+    public async Task DeleteAsync(uint id)
+    {
+        try
+        {
+            await _repository.DeleteAsync(id);
+        }
+        catch
+        {
+            apiView.SetValues("Falha no delete da entidade", HttpStatusCode.InternalServerError, false);
+        }
     }
 }

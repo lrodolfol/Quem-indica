@@ -12,6 +12,7 @@ public static class ClientEndpoints
         PostAsync(app);
         GetAsync(app);
         PutAsync(app);
+        DeleteAsync(app);
     }
 
     private static void PostAsync(this WebApplication app)
@@ -31,6 +32,7 @@ public static class ClientEndpoints
         .Produces((int)HttpStatusCode.Created).Produces((int)HttpStatusCode.InternalServerError).Produces((int)HttpStatusCode.BadRequest)
         .WithOpenApi();
     }
+
     private static void GetAsync(this WebApplication app)
     {
         app.MapGet("/client/{cliendId}", async ([FromQuery] uint cliendId, [FromServices] ClientMid mid) =>
@@ -39,6 +41,7 @@ public static class ClientEndpoints
             return mid.apiView;
         })
         .WithName("GetClient")
+        .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.NotFound)
         .WithOpenApi();
 
         app.MapGet("/client/", async ([FromServices] ClientMid mid, [FromQuery] uint limit = 25, [FromQuery] uint offset = 0) =>
@@ -47,6 +50,7 @@ public static class ClientEndpoints
             return mid.apiView;
         })
         .WithName("GetClients")
+        .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.NotFound)
         .WithOpenApi();
     }
 
@@ -56,13 +60,31 @@ public static class ClientEndpoints
         {
             await mid.UpdateIfIsValid(clientId, dto);
 
-            if (mid.apiView.HttpStatusCode == HttpStatusCode.NoContent)
+            if (mid.apiView.HttpStatusCode == HttpStatusCode.OK)
                 return Results.NoContent();
             else if(mid.apiView.HttpStatusCode == HttpStatusCode.BadRequest)
                 return Results.BadRequest(mid.apiView);
             else 
                 return Results.StatusCode((int)mid.apiView.HttpStatusCode);
-        });
+        })
+        .WithName("PutClient")
+        .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.BadRequest).Produces((int)HttpStatusCode.InternalServerError)
+        .WithOpenApi();
     }
 
+    private static void DeleteAsync(WebApplication app)
+    {
+        app.MapDelete("/client/{clientId}", async ([FromQuery] uint cliendId, [FromServices] ClientMid mid) =>
+        {
+            await mid.DeleteAsync(cliendId);
+
+            if (mid.apiView.HttpStatusCode == HttpStatusCode.InternalServerError)
+                return Results.StatusCode((int)mid.apiView.HttpStatusCode);
+            else 
+                return Results.Ok(mid.apiView);
+        })
+        .WithName("DeleteClient")
+        .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.NotFound)
+        .WithOpenApi();
+    }
 }
