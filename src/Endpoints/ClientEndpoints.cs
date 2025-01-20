@@ -21,12 +21,12 @@ public static class ClientEndpoints
                 {
                     await mid.CreateIfIsValid(dto);
 
-                    if (mid.apiView.HttpStatusCode == HttpStatusCode.Created)
-                        return Results.Created("GetClient", mid.apiView);
-                    else if (mid.apiView.HttpStatusCode == HttpStatusCode.BadRequest)
-                        return Results.BadRequest(mid.apiView);
+                    if (mid.ApiView.HttpStatusCode == HttpStatusCode.Created)
+                        return Results.Created("GetClient", mid.ApiView);
+                    else if (mid.ApiView.HttpStatusCode == HttpStatusCode.BadRequest)
+                        return Results.BadRequest(mid.ApiView);
                     else
-                        return Results.StatusCode((int)mid.apiView.HttpStatusCode);
+                        return Results.StatusCode((int)mid.ApiView.HttpStatusCode);
                 })
         .WithName("CreateClient")
         .Produces((int)HttpStatusCode.Created).Produces((int)HttpStatusCode.InternalServerError).Produces((int)HttpStatusCode.BadRequest)
@@ -38,7 +38,7 @@ public static class ClientEndpoints
         app.MapGet("/client/{cliendId}", async ([FromQuery] uint cliendId, [FromServices] ClientMid mid) =>
         {
             await mid.GetAsync(cliendId);
-            return mid.apiView;
+            return mid.ApiView;
         })
         .WithName("GetClient")
         .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.NotFound)
@@ -47,7 +47,7 @@ public static class ClientEndpoints
         app.MapGet("/client/", async ([FromServices] ClientMid mid, [FromQuery] uint limit = 25, [FromQuery] uint offset = 0) =>
         {
             await mid.GetAsync(limit, offset);
-            return mid.apiView;
+            return mid.ApiView;
         })
         .WithName("GetClients")
         .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.NotFound)
@@ -60,12 +60,12 @@ public static class ClientEndpoints
         {
             await mid.UpdateIfIsValid(clientId, dto);
 
-            if (mid.apiView.HttpStatusCode == HttpStatusCode.OK)
+            if (mid.ApiView.HttpStatusCode == HttpStatusCode.OK)
                 return Results.NoContent();
-            else if(mid.apiView.HttpStatusCode == HttpStatusCode.BadRequest)
-                return Results.BadRequest(mid.apiView);
+            else if(mid.ApiView.HttpStatusCode == HttpStatusCode.BadRequest)
+                return Results.BadRequest(mid.ApiView);
             else 
-                return Results.StatusCode((int)mid.apiView.HttpStatusCode);
+                return Results.StatusCode((int)mid.ApiView.HttpStatusCode);
         })
         .WithName("PutClient")
         .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.BadRequest).Produces((int)HttpStatusCode.InternalServerError)
@@ -78,10 +78,10 @@ public static class ClientEndpoints
         {
             await mid.DeleteAsync(cliendId);
 
-            if (mid.apiView.HttpStatusCode == HttpStatusCode.InternalServerError)
-                return Results.StatusCode((int)mid.apiView.HttpStatusCode);
+            if (mid.ApiView.HttpStatusCode == HttpStatusCode.InternalServerError)
+                return Results.StatusCode((int)mid.ApiView.HttpStatusCode);
             else 
-                return Results.Ok(mid.apiView);
+                return Results.Ok(mid.ApiView);
         })
         .WithName("DeleteClient")
         .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.NotFound)

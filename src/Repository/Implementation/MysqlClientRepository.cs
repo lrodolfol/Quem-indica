@@ -9,7 +9,7 @@ namespace API.Repository.Implementation;
 
 public class MysqlClientRepository : IClientRepository, IDisposable
 {
-    private Connection Connection;
+    private readonly Connection Connection;
     private const string TABLENAME = "Client";
     private const string PRIMARYKEYTABLE = "Id";
     private const string FIRSTFOREIGNKEYTABLE = "AddressId";
@@ -82,7 +82,7 @@ public class MysqlClientRepository : IClientRepository, IDisposable
             Id =  id
         };
 
-        var rowsAffected = await Connection._mysqlConnection.ExecuteAsync(query, parameters);
+        await Connection._mysqlConnection.ExecuteAsync(query, parameters);
     }
 
     public IEnumerable<Partnerships> SearchPartnershipByClient(uint clientId, EPartnershipStatus status = EPartnershipStatus.COMPLETED)

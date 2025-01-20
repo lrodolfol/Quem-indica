@@ -10,13 +10,13 @@ public class ClientMid
 {
     private readonly IClientRepository _repository;
     private readonly AddressMid AddressMid;
-    public ApiView apiView { get; set; }
+    public ApiView ApiView { get; private set; }
 
     public ClientMid(IClientRepository repository, AddressMid addressMid)
     {
         _repository = repository;
         AddressMid = addressMid;
-        apiView = new ApiView();
+        ApiView = new ApiView();
     }
 
     public async Task CreateIfIsValid(ClientDto dto)
@@ -24,14 +24,14 @@ public class ClientMid
         try
         {
             if (!dto.Validate())
-                apiView.SetValues(dto.Notifications.ToList(), HttpStatusCode.BadRequest, false);
+                ApiView.SetValues(dto.Notifications.ToList(), HttpStatusCode.BadRequest, false);
             else
             {
                 var IdAddressCreated = await AddressMid.CreateIfIsValidAndReturnLastIdAsync(dto.Address);
                 if (IdAddressCreated > 0)
                     await Create(dto, (uint)IdAddressCreated);
                 else
-                    apiView.SetValues(
+                    ApiView.SetValues(
                         dto.Address.Notifications.ToList(),
                         dto.Address.Notifications.Count > 0 ? HttpStatusCode.BadRequest : HttpStatusCode.InternalServerError,
                         false
@@ -40,7 +40,7 @@ public class ClientMid
         }
         catch
         {
-            apiView.SetValues("Falha interna no cadastro", HttpStatusCode.InternalServerError, false);
+            ApiView.SetValues("Falha interna no cadastro", HttpStatusCode.InternalServerError, false);
         }
     }
 
@@ -50,7 +50,7 @@ public class ClientMid
         client.SetAddressId(addressId);
 
         await _repository.PostAsync(client);
-        apiView.SetCode(HttpStatusCode.Created);
+        ApiView.SetCode(HttpStatusCode.Created);
     }
 
     public async Task UpdateIfIsValid(uint id, ClientDto dto)
@@ -60,11 +60,11 @@ public class ClientMid
             if(dto.Validate())
                 await UpdateAsync(id, dto);
             else
-                apiView.SetValues("Dados inválidos", HttpStatusCode.BadRequest, false);
+                ApiView.SetValues("Dados inválidos", HttpStatusCode.BadRequest, false);
         }
-        catch(Exception ex)
+        catch
         {
-            apiView.SetValues("Falha interna na atualização", HttpStatusCode.InternalServerError, false);
+            ApiView.SetValues("Falha interna na atualização", HttpStatusCode.InternalServerError, false);
         }        
     }
 
@@ -74,12 +74,12 @@ public class ClientMid
 
         if (client is null)
         {
-            apiView.SetValues("Id de client não encontrado", HttpStatusCode.NotFound, false);
+            ApiView.SetValues("Id de client não encontrado", HttpStatusCode.NotFound, false);
             return;
         }
 
         await _repository.PutAsync(id, dto);
-        apiView.SetCode(HttpStatusCode.NoContent);
+        ApiView.SetCode(HttpStatusCode.NoContent);
     }
 
     public async Task GetAsync(uint id)
@@ -87,16 +87,16 @@ public class ClientMid
         Client client = await _repository.GetAsync(id);
 
         if (client is null)
-            apiView.SetValues("Id de client não encontrado", HttpStatusCode.NotFound, false);
+            ApiView.SetValues("Id de client não encontrado", HttpStatusCode.NotFound, false);
         else
-            apiView.SetData(client);
+            ApiView.SetData(client);
     }
 
     public async Task GetAsync(uint limit, uint offetPageNumber)
     {
         IEnumerable<Client>? client = await _repository.GetAsync(limit, offetPageNumber);
 
-        apiView.SetData(client);
+        ApiView.SetData(client);
     }
 
     public async Task DeleteAsync(uint id)
@@ -107,7 +107,7 @@ public class ClientMid
         }
         catch
         {
-            apiView.SetValues("Falha no delete da entidade", HttpStatusCode.InternalServerError, false);
+            ApiView.SetValues("Falha no delete da entidade", HttpStatusCode.InternalServerError, false);
         }
     }
 }

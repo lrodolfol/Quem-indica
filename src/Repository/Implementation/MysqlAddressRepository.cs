@@ -6,8 +6,8 @@ namespace API.Repository.Implementation;
 
 public class MysqlAddressRepository : IAddressRepository, IDisposable
 {
-    private Connection Connection;
-    private string tableName = "Address";
+    private readonly Connection Connection;
+    private const string tableName = "Address";
 
     public MysqlAddressRepository(Connection connection)
     {
@@ -20,11 +20,6 @@ public class MysqlAddressRepository : IAddressRepository, IDisposable
     }
 
     public Task<Address> GetAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task PostAsync(Address entity)
     {
         throw new NotImplementedException();
     }
