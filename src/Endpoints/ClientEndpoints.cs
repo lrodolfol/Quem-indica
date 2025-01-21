@@ -35,10 +35,13 @@ public static class ClientEndpoints
 
     private static void GetAsync(this WebApplication app)
     {
-        app.MapGet("/client/{cliendId}", async ([FromQuery] uint cliendId, [FromServices] ClientMid mid) =>
+        app.MapGet("/client/{clientId}", async ([FromRoute] uint clientId, [FromServices] ClientMid mid) =>
         {
-            await mid.GetAsync(cliendId);
-            return mid.ApiView;
+            await mid.GetAsync((uint)clientId);
+            if (mid.ApiView.HttpStatusCode == HttpStatusCode.OK)
+                return Results.Ok(mid.ApiView);
+            else
+                return Results.NotFound(mid.ApiView);
         })
         .WithName("GetClient")
         .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.NotFound)
@@ -56,7 +59,7 @@ public static class ClientEndpoints
 
     private static void PutAsync(WebApplication app)
     {
-        app.MapPut("client/{clientId}", async ([FromQuery] uint clientId, [FromBody] ClientDto dto, [FromServices] ClientMid mid) =>
+        app.MapPut("client/{clientId}", async ([FromRoute] uint clientId, [FromBody] ClientDto dto, [FromServices] ClientMid mid) =>
         {
             await mid.UpdateIfIsValid(clientId, dto);
 
