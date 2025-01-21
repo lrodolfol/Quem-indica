@@ -16,13 +16,13 @@ public static class ServicesInjection
     {
         builder.Services.AddScoped<IAddressRepository, MysqlAddressRepository>();
         builder.Services.AddScoped<IClientRepository, MysqlClientRepository>();
+        builder.Services.AddScoped<IPartnershipRepository, PartnershipRepository>();
     }
 
     private static void LoadMiddlewares(WebApplicationBuilder builder)
     {
-        var mysqk = builder.Services.BuildServiceProvider().GetRequiredService<IClientRepository>();
-
         builder.Services.AddScoped<ClientMid>();
         builder.Services.AddScoped<AddressMid>();
+        builder.Services.AddScoped<PartnershipsMid>();
     }
 }

@@ -4,7 +4,7 @@ namespace API.Models.Entities;
 
 public class Partnerships : Entitie
 {
-    public Client Nominees { get; private set; } = null!;
-    public Client Referrer { get; private set; } = null!;
+    public List<Client> Nominees { get; set; } = [];
+    public List<Client> Referrer { get; set; } = [];
     public EPartnershipStatus PartnershipStatus { get; private set; }
 }

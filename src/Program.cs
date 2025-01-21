@@ -18,5 +18,6 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.CreateClientEndpoints();
+app.CreatePartnershipsEndpoints();
 
 app.Run();

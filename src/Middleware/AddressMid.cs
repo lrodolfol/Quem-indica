@@ -7,7 +7,6 @@ namespace API.Middleware;
 public class AddressMid
 {
     private readonly IAddressRepository _repository;
-
     public AddressMid(IAddressRepository repository)
     {
         _repository = repository;

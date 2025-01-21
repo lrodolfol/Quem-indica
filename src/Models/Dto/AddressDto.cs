@@ -1,5 +1,4 @@
-﻿using API.Models.Entities;
-using API.Models.ValueObjects;
+﻿using API.Models.ValueObjects;
 
 namespace API.Models.Dto;
 
