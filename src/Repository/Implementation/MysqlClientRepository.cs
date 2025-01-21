@@ -33,16 +33,17 @@ public class MysqlClientRepository : IClientRepository, IDisposable
         await Connection._mysqlConnection.ExecuteAsync(query, parameters);
     }
 
-    public async Task<Client> GetAsync(uint id)
+    public async Task<Client?> GetAsync(uint id)
     {
         await OpenDatabaseIfClose();
 
         var parameters = new { Id = id };
-        string queryBuilder = $"SELECT * FROM {TABLENAME} t INNER JOIN {FISRTTABLERELATIONSHIPNAME} r ON t.{FIRSTFOREIGNKEYTABLE} = r.{FIRSTPRIMARYKEYRELATIONSHIP} WHERE t.{PRIMARYKEYTABLE} = {@id}";
+        string queryBuilder = $"SELECT * FROM {TABLENAME} t INNER JOIN {FISRTTABLERELATIONSHIPNAME} r ON t.{FIRSTFOREIGNKEYTABLE} = r.{FIRSTPRIMARYKEYRELATIONSHIP} WHERE t.{PRIMARYKEYTABLE} = @id";
         IEnumerable<Client> entity = await Connection._mysqlConnection.QueryAsync(queryBuilder, GetEntityWithRelationShip(), parameters);
 
-        return entity.First();
+        return entity is null ? entity!.First() : null;
     }
+
     public async Task<IEnumerable<Client>> GetAsync(uint limit, uint offset)
     {
         await OpenDatabaseIfClose();
@@ -85,12 +86,6 @@ public class MysqlClientRepository : IClientRepository, IDisposable
         await Connection._mysqlConnection.ExecuteAsync(query, parameters);
     }
 
-    public IEnumerable<Partnerships> SearchPartnershipByClient(uint clientId, EPartnershipStatus status = EPartnershipStatus.COMPLETED)
-    {
-        Connection._mysqlConnection.OpenAsync();
-        throw new NotImplementedException();
-    }
-
     private static Func<Client, Address, Client> GetEntityWithRelationShip()
     {
         return (client, address) =>
@@ -109,6 +104,7 @@ public class MysqlClientRepository : IClientRepository, IDisposable
         if(Connection._mysqlConnection.State == ConnectionState.Closed)
             await Connection._mysqlConnection.OpenAsync();
     }
+
     public void Dispose()
     {
         Connection._mysqlConnection.CloseAsync();
