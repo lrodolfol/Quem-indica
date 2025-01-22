@@ -18,10 +18,12 @@ public static class PartnershipsEndpoint
     {
         app.MapPost("/partnership", async ([FromBody] PartnershipCommandDto dto, [FromServices] PartnershipsMid mid) =>
         {
-            await mid.Post(dto);
+            await mid.TryCreateIfValid(dto);
 
             if (mid.ApiView.HttpStatusCode == HttpStatusCode.Created)
                 return Results.Created("GetPartnership", mid.ApiView);
+            else if (mid.ApiView.HttpStatusCode == HttpStatusCode.BadRequest)
+                return Results.BadRequest(mid.ApiView);
             else
                 return Results.StatusCode((int)mid.ApiView.HttpStatusCode);
         })

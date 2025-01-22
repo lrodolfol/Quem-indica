@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace API.Models.Dto;
 
-public class ClientDto : BaseDto
+public sealed record ClientDto : BaseDto
 {
     [Required(ErrorMessage = "Nome não pode ser vazio")]
     [StringLength(50, MinimumLength = 2, ErrorMessage = "Nome deve ter entre 2 e 50 caracteres")]

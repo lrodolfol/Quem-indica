@@ -1,6 +1,6 @@
 ﻿namespace API.Models.Dto;
 
-public abstract class BaseDto
+public abstract record BaseDto
 {
     private readonly List<string> _notifications = [];
     public IReadOnlyCollection<string> Notifications => _notifications;

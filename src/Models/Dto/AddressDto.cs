@@ -2,7 +2,7 @@
 
 namespace API.Models.Dto;
 
-public sealed class AddressDto : BaseDto
+public sealed record AddressDto : BaseDto
 {
     public string Country { get; set; } = null!;
     public string State { get; set; } = null!;

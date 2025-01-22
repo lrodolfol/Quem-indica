@@ -1,7 +1,6 @@
 ﻿using API.Models.Dto;
 using API.Models.ReturnView;
 using API.Repository.Abstraction;
-using MySqlConnector;
 using System.Net;
 
 namespace API.Middleware;
@@ -20,7 +19,17 @@ public class PartnershipsMid
         ApiView = new ApiView();
     }
 
-    public async Task Post(PartnershipCommandDto dto)
+    public async Task TryCreateIfValid(PartnershipCommandDto dto)
+    {
+        if (dto.Validate())
+            await PostAsync(dto);
+        else
+        {
+            ApiView.SetValues(dto.Notifications.ToList(), HttpStatusCode.BadRequest, false);
+        }
+    }
+
+    private async Task PostAsync(PartnershipCommandDto dto)
     {
         try
         {
