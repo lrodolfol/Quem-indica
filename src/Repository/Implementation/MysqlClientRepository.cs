@@ -41,7 +41,7 @@ public class MysqlClientRepository : IClientRepository, IDisposable
         string queryBuilder = $"SELECT * FROM {TABLENAME} t INNER JOIN {FISRTTABLERELATIONSHIPNAME} r ON t.{FIRSTFOREIGNKEYTABLE} = r.{FIRSTPRIMARYKEYRELATIONSHIP} WHERE t.{PRIMARYKEYTABLE} = @id";
         IEnumerable<Client> entity = await Connection._mysqlConnection.QueryAsync(queryBuilder, GetEntityWithRelationShip(), parameters);
 
-        return entity is null ? entity!.First() : null;
+        return entity is not null ? entity.First() : null;
     }
 
     public async Task<IEnumerable<Client>> GetAsync(uint limit, uint offset)

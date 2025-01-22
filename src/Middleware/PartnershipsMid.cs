@@ -1,6 +1,7 @@
 ﻿using API.Models.Dto;
 using API.Models.ReturnView;
 using API.Repository.Abstraction;
+using MySqlConnector;
 using System.Net;
 
 namespace API.Middleware;

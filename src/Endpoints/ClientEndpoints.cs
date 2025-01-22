@@ -71,6 +71,7 @@ public static class ClientEndpoints
                 return Results.StatusCode((int)mid.ApiView.HttpStatusCode);
         })
         .WithName("PutClient")
+        .WithGroupName("Client")
         .Produces((int)HttpStatusCode.NoContent).Produces((int)HttpStatusCode.BadRequest).Produces((int)HttpStatusCode.InternalServerError)
         .WithOpenApi();
     }

@@ -5,6 +5,7 @@ using API.Models.ValueObjects;
 using API.Repository.Abstraction;
 using Dapper;
 using System.Data;
+using System.Text;
 
 namespace API.Repository.Implementation;
 
@@ -28,10 +29,12 @@ public class PartnershipRepository : IPartnershipRepository
     public async Task<IEnumerable<PartnershipQueryDto>> SearchPartnershipByClient(uint clientId, EPartnershipStatus status = EPartnershipStatus.COMPLETED)
     {
         await OpenDatabaseIfClose();
-
-        //var query = $"SELECT P1.ClientReferrerId, C1.Name, C1.FictitiousName, C1.Segment FROM Partnerships P1 INNER JOIN Client C1 ON P1.{SECONDFOREIGNKEYTABLE} = C1.{PRIMARYKEYTABLE} WHERE P1.ClientNomieesId = @Id AND P1.Active = @True1 AND C1.Active = @True2";
-        var query = $"SELECT P1.ClientReferrerId, C1.Name, C1.FictitiousName, C1.Segment ";
-        query += $" FROM Partnerships P1 INNER JOIN Client C1 ON P1.{SECONDFOREIGNKEYTABLE} = C1.{PRIMARYKEYTABLE} WHERE P1.ClientNomieesId = @ClientId AND P1.Active = @Active1 AND C1.Active = @Active2";
+        
+        StringBuilder builer = new StringBuilder();
+        builer.Append($"SELECT P1.ClientReferrerId, C1.Name, C1.FictitiousName, C1.Segment, P1.CreatedAt, P1.UpdatedAt, P1.ValidUntil ");
+        builer.Append($" FROM Partnerships P1 INNER JOIN Client C1 ON P1.{SECONDFOREIGNKEYTABLE} = C1.{PRIMARYKEYTABLE} ");
+        builer.Append(" WHERE P1.ClientNomieesId = @ClientId AND P1.Active = @Active1 AND C1.Active = @Active2 ");
+        builer.Append($" AND P1.ValidUntil >= ${DateOnly.FromDateTime(DateTime.UtcNow)} ");
         var parameters = new
         {
             ClientId = clientId,
@@ -39,7 +42,7 @@ public class PartnershipRepository : IPartnershipRepository
             Active2 = true
         };
 
-        var entity = await Connection._mysqlConnection.QueryAsync<PartnershipQueryDto>(query, parameters);
+        var entity = await Connection._mysqlConnection.QueryAsync<PartnershipQueryDto>(builer.ToString(), parameters);
 
         return entity;
     }
