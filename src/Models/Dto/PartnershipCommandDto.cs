@@ -11,12 +11,13 @@ public sealed record PartnershipCommandDto(uint ClientNomieesId, uint ClientRefe
     }
 }
 
-public record PartnershipQueryDto(
-    uint ClientReferrerId, 
-    string Name,  
-    string FictitiousName, 
-    string Segment,
-    DateTime CreatedAt,
-    DateTime UpdatedAt,
-    DateOnly ValidUntil
-    );
+public class PartnershipQueryDto
+{
+    public uint ClientReferrerId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string FictitiousName { get; set; } = string.Empty;
+    public string Segment { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public DateTime ValidUntil { get; set; }
+}
