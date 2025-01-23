@@ -1,4 +1,5 @@
-﻿using API.Models.Dto;
+﻿using API.Middleware;
+using API.Models.Dto;
 using API.Models.Entities;
 using API.Models.Enums;
 using API.Models.ValueObjects;
@@ -75,7 +76,8 @@ public class PartnershipRepository : IPartnershipRepository
         builer.Append(" WHERE P1.ClientNomieesId = @ClientId AND P1.Active = @Active1 AND C1.Active = @Active2 AND P1.STATUS = @STATUS");
         var parameters = new
         {
-            Status = nameof(EPartnershipStatus.PENDING),
+            ClientId = ClientNomieesId,
+            Status = status.ToString(),
             Active1 = true,
             Active2 = true,
         };

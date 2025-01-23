@@ -48,7 +48,7 @@ public static class PartnershipsEndpoint
         .Produces((int)HttpStatusCode.OK).Produces((int)HttpStatusCode.InternalServerError).Produces((int)HttpStatusCode.BadRequest)
         .WithOpenApi();
 
-        app.MapGet("/partnership/{clientId}/status/{status}", async (uint ClientNomieesId, EPartnershipStatus status, [FromServices] PartnershipsMid mid) =>
+        app.MapGet("/partnership/{ClientNomieesId}/status/{status}", async ([FromRoute] uint ClientNomieesId, [FromRoute] EPartnershipStatus status, [FromServices] PartnershipsMid mid) =>
         {
             await mid.GetByStatusAsync(ClientNomieesId, status);
 
