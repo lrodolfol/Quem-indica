@@ -4,11 +4,10 @@ namespace API.Models.Enums;
 
 public enum EPartnershipStatus
 {
-    CREATED = 0,
-    PENDING = 1,
-    ACCEPTED = 2,
-    CANCELED = 3,
+    PENDING = 0,
+    CANCELED = 1,
     OVERDUE = 4,
-    COMPLETED = 5,
+    IGNORED = 5,
+    COMPLETED = 6,
     ERROR = 99
 }

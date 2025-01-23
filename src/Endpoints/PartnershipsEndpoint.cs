@@ -1,6 +1,7 @@
 ﻿
 using API.Middleware;
 using API.Models.Dto;
+using API.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -36,7 +37,7 @@ public static class PartnershipsEndpoint
     {
         app.MapGet("/partnership/{clientId}", async ([FromRoute] uint clientId, [FromServices] PartnershipsMid mid) =>
         {
-            await mid.GetAsync(clientId);
+            await mid.SearchPartnershipAsync(clientId);
 
             if (mid.ApiView.HttpStatusCode == HttpStatusCode.OK)
                 return Results.Ok(mid.ApiView);
@@ -44,6 +45,19 @@ public static class PartnershipsEndpoint
                 return Results.StatusCode((int)mid.ApiView.HttpStatusCode);
         })
         .WithName("GetPartnership")
+        .Produces((int)HttpStatusCode.OK).Produces((int)HttpStatusCode.InternalServerError).Produces((int)HttpStatusCode.BadRequest)
+        .WithOpenApi();
+
+        app.MapGet("/partnership/{clientId}/status/{status}", async (uint ClientNomieesId, EPartnershipStatus status, [FromServices] PartnershipsMid mid) =>
+        {
+            await mid.GetByStatusAsync(ClientNomieesId, status);
+
+            if (mid.ApiView.HttpStatusCode == HttpStatusCode.OK)
+                return Results.Ok(mid.ApiView);
+            else
+                return Results.StatusCode((int)mid.ApiView.HttpStatusCode);
+        })
+        .WithName("GetPartnershipStatus")
         .Produces((int)HttpStatusCode.OK).Produces((int)HttpStatusCode.InternalServerError).Produces((int)HttpStatusCode.BadRequest)
         .WithOpenApi();
     }

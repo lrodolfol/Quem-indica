@@ -1,4 +1,5 @@
 ﻿using API.Models.Dto;
+using API.Models.Enums;
 using API.Models.ReturnView;
 using API.Repository.Abstraction;
 using System.Net;
@@ -43,17 +44,31 @@ public class PartnershipsMid
         }
     }
 
-    public async Task GetAsync(uint clientId)
+    public async Task SearchPartnershipAsync(uint clientId)
     {
         try
         {
-            IEnumerable<PartnershipQueryDto> partnership = await _repository.SearchPartnershipByClient(clientId);
+            IEnumerable<PartnershipQueryDto> partnership = await _repository.SearchPartnershipAsync(clientId);
             ApiView.SetData(partnership);
         }
         catch(Exception ex)
         {
             ApiView.SetCode(HttpStatusCode.InternalServerError);
             _logger.LogError("Falha no processo #8fb3e966. Erro: {erro}", ex.Message);
+        }
+    }
+
+    public async Task GetByStatusAsync(uint ClientNomieesId, EPartnershipStatus status)
+    {
+        try
+        {
+            IEnumerable<PartnershipQueryDto> partnership = await _repository.GetByStatus(ClientNomieesId, status);
+            ApiView.SetData(partnership);
+        }
+        catch (Exception ex)
+        {
+            ApiView.SetCode(HttpStatusCode.InternalServerError);
+            _logger.LogError("Falha no processo #4ed9bf29. Erro: {erro}", ex.Message);
         }
     }
 }
