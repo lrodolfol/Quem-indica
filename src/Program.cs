@@ -1,5 +1,6 @@
 using API.Configuration;
 using API.Endpoints;
+using API.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,9 @@ builder.Services.AddSwaggerGen();
 builder.LoadAppSettings();
 builder.LoadDataBaseConnection();
 builder.LoadDependencies();
+builder.LoadConfiguration();
+
+builder.Services.AddHostedService<TasksServices>();
 
 WebApplication app = builder.Build();
 

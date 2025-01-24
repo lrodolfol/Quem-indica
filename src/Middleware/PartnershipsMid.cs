@@ -44,6 +44,18 @@ public class PartnershipsMid
         }
     }
 
+    public async Task SetOverdueStatusAsync(uint DaysForOverdue)
+    {
+        try
+        {
+            await _repository.SetOverdueStatusAsync(DaysForOverdue);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Falha critina no processo de atualização {error}", ex.Message);
+        }
+    }
+
     public async Task SearchPartnershipAsync(uint clientId)
     {
         try

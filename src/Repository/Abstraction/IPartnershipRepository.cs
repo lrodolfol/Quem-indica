@@ -12,4 +12,5 @@ public interface IPartnershipRepository
     public Task<IEnumerable<PartnershipQueryDto>> GetByStatus(uint clientNomieesId, EPartnershipStatus status);
 
     public Task PostAsync(PartnershipCommandDto dto);
+    public Task SetOverdueStatusAsync(uint daysOverdue);
 }
