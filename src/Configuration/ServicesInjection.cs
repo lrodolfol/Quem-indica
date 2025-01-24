@@ -16,7 +16,7 @@ public static class ServicesInjection
     {
         builder.Services.AddScoped<IAddressRepository, MysqlAddressRepository>();
         builder.Services.AddScoped<IClientRepository, MysqlClientRepository>();
-        builder.Services.AddScoped<IPartnershipRepository, PartnershipRepository>();
+        builder.Services.AddScoped<IPartnershipRepository, MysqlPartnershipRepository>();
     }
 
     private static void LoadMiddlewares(WebApplicationBuilder builder)
