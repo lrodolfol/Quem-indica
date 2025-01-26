@@ -1,5 +1,7 @@
 ﻿using API.Repository;
 using API.Services.Cloud.AWS;
+using Hangfire;
+using Hangfire.MySql;
 using MySqlConnector;
 using System.Text.Json;
 
@@ -9,7 +11,7 @@ public static class DataBaseDependencies
 {
     public static void LoadDataBaseConnection(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<Connection>(x =>
+        Func<Connection> getConnection = () =>
         {
             if (Environment.GetEnvironmentVariable(nameof(Enviroment)) == nameof(Enviroment.dev))
             {
@@ -24,7 +26,7 @@ public static class DataBaseDependencies
 
                 return LoadDeveloperConnection(dataBaseCredentials);
             }
-            else 
+            else
             {
                 var accessKey = builder.Configuration["Cloud:Aws:AccessKey"] ?? "";
                 var secretKey = builder.Configuration["Cloud:Aws:SecretKey"] ?? "";
@@ -32,7 +34,16 @@ public static class DataBaseDependencies
 
                 return LoadImplantationConnection(accessKey, secretKey, region);
             }
+        };
+
+        Connection connection = getConnection();
+
+        builder.Services.AddScoped<Connection>(x =>
+        {
+            return connection;
         });
+
+        HangFireDataBase(builder, connection);
     }
 
     private static Connection LoadDeveloperConnection(DataBaseCredentials dataBaseCredentials)
@@ -70,6 +81,29 @@ public static class DataBaseDependencies
         {
             _mysqlConnection = new MySqlConnection(conStr.ConnectionString)
         };
+    }
+
+    private static void HangFireDataBase(this WebApplicationBuilder builder, Connection connection)
+    {
+        builder.Services.AddHangfire((sp, config) =>
+        {
+            //config.UseColouredConsoleLogProvider();
+
+            config.UseStorage(new MySqlStorage(
+                connection._mysqlConnection.ConnectionString + ";" + "Allow User Variables=True",
+                new MySqlStorageOptions
+                {
+                    QueuePollInterval = TimeSpan.FromSeconds(15),
+                    JobExpirationCheckInterval = TimeSpan.FromHours(1),
+                    CountersAggregateInterval = TimeSpan.FromMinutes(5),
+                    PrepareSchemaIfNecessary = true,
+                    DashboardJobListLimit = 50000,
+                    TransactionTimeout = TimeSpan.FromSeconds(30),
+                    TablesPrefix = "Hangfire"
+                }));
+        });
+
+        builder.Services.AddHangfireServer();
     }
 }
 
