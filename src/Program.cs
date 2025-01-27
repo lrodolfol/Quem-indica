@@ -2,10 +2,6 @@ using API.Configuration;
 using API.Endpoints;
 using API.Middleware;
 using Hangfire;
-using Hangfire.MySql;
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq.Expressions;
-
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +12,6 @@ builder.LoadAppSettings();
 builder.LoadDataBaseConnection();
 builder.LoadDependencies();
 builder.LoadConfiguration();
-
-//builder.Services.AddHostedService<TasksServices>();
 
 WebApplication app = builder.Build();
 app.UseHangfireDashboard();
