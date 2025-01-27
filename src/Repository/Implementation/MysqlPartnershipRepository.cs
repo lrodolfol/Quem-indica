@@ -1,4 +1,5 @@
 ﻿using API.Models.Dto;
+using API.Models.Entities;
 using API.Models.Enums;
 using API.Repository.Abstraction;
 using Dapper;
@@ -24,10 +25,10 @@ public class MysqlPartnershipRepository : IPartnershipRepository
     private const string FISRTTABLERELATIONSHIPNAME = "Client";
     private const string FIRSTPRIMARYKEYRELATIONSHIP = "Id";
 
-    public async Task<IEnumerable<PartnershipQueryDto>> SearchPartnershipAsync(uint clientId, EPartnershipStatus status = EPartnershipStatus.COMPLETED)
+    public async Task<IEnumerable<PartnershipQueryDto>> SearchPartnershipIAmNomiessAsync(uint clientId, EPartnershipStatus status = EPartnershipStatus.COMPLETED)
     {
         await OpenDatabaseIfClose();
-        
+
         StringBuilder builer = new StringBuilder();
         builer.Append($"SELECT P1.ClientReferrerId, C1.Name, C1.FictitiousName, C1.Segment, P1.CreatedAt, P1.UpdatedAt, P1.ValidUntil ");
         builer.Append($" FROM {TABLENAME} P1 INNER JOIN {FISRTTABLERELATIONSHIPNAME} C1 ON P1.{SECONDFOREIGNKEYTABLE} = C1.{PRIMARYKEYTABLE} ");
@@ -63,7 +64,7 @@ public class MysqlPartnershipRepository : IPartnershipRepository
         await Connection._mysqlConnection.ExecuteAsync(query, parameters);
     }
 
-    public async Task<IEnumerable<PartnershipQueryDto>> GetByStatus(uint ClientNomieesId, EPartnershipStatus status)
+    public async Task<IEnumerable<PartnershipQueryDto>> GetByStatusAsync(uint clientNomieesId, EPartnershipStatus status)
     {
         await OpenDatabaseIfClose();
 
@@ -73,7 +74,7 @@ public class MysqlPartnershipRepository : IPartnershipRepository
         builer.Append(" WHERE P1.ClientNomieesId = @ClientId AND P1.Active = @Active1 AND C1.Active = @Active2 AND P1.STATUS = @STATUS");
         var parameters = new
         {
-            ClientId = ClientNomieesId,
+            ClientId = clientNomieesId,
             Status = status.ToString(),
             Active1 = true,
             Active2 = true,
@@ -97,6 +98,31 @@ public class MysqlPartnershipRepository : IPartnershipRepository
 
         await Connection._mysqlConnection.ExecuteAsync(query, parameters);
     }
+
+    public async Task AcceptRequestPartnershipAsync(uint clientNomieesId, uint partnershipId)
+    {
+        await OpenDatabaseIfClose();
+
+        var query = $"UPDATE {TABLENAME} P1 SET STATUS = {nameof(EPartnershipStatus.COMPLETED)} WHERE P1.{PRIMARYKEYTABLE} = @partnershipId AND P1.Status = @status AND P1.ClientNomieesId = @ClientNomieesId";
+        var parameters = new 
+        {
+            partnershipId = partnershipId,
+            status = nameof(EPartnershipStatus.PENDING),
+            ClientNomieesId = clientNomieesId
+        };
+
+        await Connection._mysqlConnection.ExecuteAsync(query, parameters);
+    }
+
+    //public async Task<Partnerships?> GetByIdAsync(uint partnershipId)
+    //{
+    //    var query = $"SELECT * FROM {TABLENAME} P1 WHERE P1.{PRIMARYKEYTABLE} = @partnershipId";
+    //    var parameters = new { partnershipId };
+
+    //    var entity = await Connection._mysqlConnection.ExecuteScalarAsync<Partnerships>(query, parameters);
+
+    //    return entity;
+    //}
 
     private async Task OpenDatabaseIfClose()
     {
