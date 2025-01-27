@@ -1,5 +1,4 @@
 ﻿using API.Models.Dto;
-using API.Models.Entities;
 using API.Models.Enums;
 
 namespace API.Repository.Abstraction;

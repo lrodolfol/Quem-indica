@@ -8,7 +8,7 @@ using System.Text;
 
 namespace API.Repository.Implementation;
 
-public class MysqlPartnershipRepository : IPartnershipRepository
+public class MysqlPartnershipRepository : IPartnershipRepository, IBaseRepository
 {
     private readonly Connection Connection;
 
@@ -27,7 +27,7 @@ public class MysqlPartnershipRepository : IPartnershipRepository
 
     public async Task<IEnumerable<PartnershipQueryDto>> SearchPartnershipIAmNomiessAsync(uint clientId, EPartnershipStatus status = EPartnershipStatus.COMPLETED)
     {
-        await OpenDatabaseIfClose();
+        await OpenConnectionIfClose();
 
         StringBuilder builer = new StringBuilder();
         builer.Append($"SELECT P1.ClientReferrerId, C1.Name, C1.FictitiousName, C1.Segment, P1.CreatedAt, P1.UpdatedAt, P1.ValidUntil ");
@@ -44,13 +44,14 @@ public class MysqlPartnershipRepository : IPartnershipRepository
         };
 
         var entity = await Connection._mysqlConnection.QueryAsync<PartnershipQueryDto>(builer.ToString(), parameters);
+        await CloseConnectionIfOpen();
 
         return entity;
     }
 
     public async Task PostAsync(PartnershipCommandDto partnerships)
     {
-        await OpenDatabaseIfClose();
+        await OpenConnectionIfClose();
 
         var query = $"INSERT INTO {TABLENAME} (ClientReferrerId, ClientNomieesId, Active, Status) VALUES (@ClientReferrerId, @ClientNomieesId, @Active, @Status)";
         var parameters = new
@@ -62,11 +63,12 @@ public class MysqlPartnershipRepository : IPartnershipRepository
         };
 
         await Connection._mysqlConnection.ExecuteAsync(query, parameters);
+        await CloseConnectionIfOpen();
     }
 
     public async Task<IEnumerable<PartnershipQueryDto>> GetByStatusAsync(uint clientNomieesId, EPartnershipStatus status)
     {
-        await OpenDatabaseIfClose();
+        await OpenConnectionIfClose();
 
         StringBuilder builer = new StringBuilder();
         builer.Append($"SELECT P1.ClientReferrerId, C1.Name, C1.FictitiousName, C1.Segment, P1.CreatedAt, P1.UpdatedAt, P1.ValidUntil ");
@@ -81,13 +83,14 @@ public class MysqlPartnershipRepository : IPartnershipRepository
         };
 
         var entity = await Connection._mysqlConnection.QueryAsync<PartnershipQueryDto>(builer.ToString(), parameters);
+        await CloseConnectionIfOpen();
 
         return entity;
     }
 
     public async Task SetOverdueStatusAsync(uint daysOverdue)
     {
-        await OpenDatabaseIfClose();
+        await OpenConnectionIfClose();
 
         var query = $"UPDATE {TABLENAME} P1 SET P1.STATUS = @STATUS WHERE P1.ValidUntil < @NOW ";
         var parameters = new
@@ -97,36 +100,35 @@ public class MysqlPartnershipRepository : IPartnershipRepository
         };
 
         await Connection._mysqlConnection.ExecuteAsync(query, parameters);
+        await CloseConnectionIfOpen();
     }
 
     public async Task AcceptRequestPartnershipAsync(uint clientNomieesId, uint partnershipId)
     {
-        await OpenDatabaseIfClose();
+        await OpenConnectionIfClose();
 
-        var query = $"UPDATE {TABLENAME} P1 SET STATUS = {nameof(EPartnershipStatus.COMPLETED)} WHERE P1.{PRIMARYKEYTABLE} = @partnershipId AND P1.Status = @status AND P1.ClientNomieesId = @ClientNomieesId";
-        var parameters = new 
+        var query = $"UPDATE {TABLENAME} P1 SET P1.Status = @newStatus WHERE P1.{PRIMARYKEYTABLE} = @partnershipId AND P1.Status = @status AND P1.ClientNomieesId = @ClientNomieesId";
+        var parameters = new
         {
+            newStatus = nameof(EPartnershipStatus.COMPLETED),
             partnershipId = partnershipId,
             status = nameof(EPartnershipStatus.PENDING),
             ClientNomieesId = clientNomieesId
         };
 
         await Connection._mysqlConnection.ExecuteAsync(query, parameters);
+        await CloseConnectionIfOpen();
     }
 
-    //public async Task<Partnerships?> GetByIdAsync(uint partnershipId)
-    //{
-    //    var query = $"SELECT * FROM {TABLENAME} P1 WHERE P1.{PRIMARYKEYTABLE} = @partnershipId";
-    //    var parameters = new { partnershipId };
 
-    //    var entity = await Connection._mysqlConnection.ExecuteScalarAsync<Partnerships>(query, parameters);
-
-    //    return entity;
-    //}
-
-    private async Task OpenDatabaseIfClose()
+    public async Task OpenConnectionIfClose()
     {
         if (Connection._mysqlConnection.State == ConnectionState.Closed)
             await Connection._mysqlConnection.OpenAsync();
+    }
+    public async Task CloseConnectionIfOpen()
+    {
+        if(Connection._mysqlConnection.State == ConnectionState.Open)
+            await Connection._mysqlConnection.CloseAsync();        
     }
 }

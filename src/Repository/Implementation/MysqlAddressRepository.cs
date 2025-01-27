@@ -1,10 +1,11 @@
 ﻿using API.Models.ValueObjects;
 using API.Repository.Abstraction;
 using Dapper;
+using System.Data;
 
 namespace API.Repository.Implementation;
 
-public class MysqlAddressRepository : IAddressRepository, IDisposable
+public class MysqlAddressRepository : IAddressRepository, IBaseRepository
 {
     private readonly Connection Connection;
     private const string tableName = "Address";
@@ -26,7 +27,7 @@ public class MysqlAddressRepository : IAddressRepository, IDisposable
 
     public async Task<int> PostReturnLastIdAsync(Address entity)
     {
-        await Connection._mysqlConnection.OpenAsync();
+        await OpenConnectionIfClose();
 
         var lastId = await Connection._mysqlConnection.ExecuteScalarAsync<int>
             (
@@ -44,8 +45,14 @@ public class MysqlAddressRepository : IAddressRepository, IDisposable
         throw new NotImplementedException();
     }
 
-    public void Dispose()
+    public async Task OpenConnectionIfClose()
     {
-        Connection._mysqlConnection.CloseAsync();
+        if (Connection._mysqlConnection.State == ConnectionState.Closed)
+            await Connection._mysqlConnection.OpenAsync();
+    }
+    public async Task CloseConnectionIfOpen()
+    {
+        if (Connection._mysqlConnection.State == ConnectionState.Open)
+            await Connection._mysqlConnection.CloseAsync();
     }
 }
