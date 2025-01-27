@@ -107,10 +107,11 @@ public class MysqlPartnershipRepository : IPartnershipRepository, IBaseRepositor
     {
         await OpenConnectionIfClose();
 
-        var query = $"UPDATE {TABLENAME} P1 SET P1.Status = @newStatus WHERE P1.{PRIMARYKEYTABLE} = @partnershipId AND P1.Status = @status AND P1.ClientNomieesId = @ClientNomieesId";
+        var query = $"UPDATE {TABLENAME} P1 SET P1.Status = @newStatus, ValidUntil = @validUntil WHERE P1.{PRIMARYKEYTABLE} = @partnershipId AND P1.Status = @status AND P1.ClientNomieesId = @ClientNomieesId";
         var parameters = new
         {
             newStatus = nameof(EPartnershipStatus.COMPLETED),
+            ValidUntil = DateTime.Now.AddYears(1).ToString("yyyy-MM-dd"),
             partnershipId = partnershipId,
             status = nameof(EPartnershipStatus.PENDING),
             ClientNomieesId = clientNomieesId
