@@ -56,11 +56,11 @@ public class PartnershipsMid
         }
     }
 
-    public async Task SearchPartnershipAsync(uint clientId)
+    public async Task SearchPartnershipIAmNomiessAsync(uint clientId)
     {
         try
         {
-            IEnumerable<PartnershipQueryDto> partnership = await _repository.SearchPartnershipAsync(clientId);
+            IEnumerable<PartnershipQueryDto> partnership = await _repository.SearchPartnershipIAmNomiessAsync(clientId);
             ApiView.SetData(partnership);
         }
         catch(Exception ex)
@@ -74,7 +74,7 @@ public class PartnershipsMid
     {
         try
         {
-            IEnumerable<PartnershipQueryDto> partnership = await _repository.GetByStatus(ClientNomieesId, status);
+            IEnumerable<PartnershipQueryDto> partnership = await _repository.GetByStatusAsync(ClientNomieesId, status);
             ApiView.SetData(partnership);
         }
         catch (Exception ex)
@@ -82,5 +82,18 @@ public class PartnershipsMid
             ApiView.SetCode(HttpStatusCode.InternalServerError);
             _logger.LogError("Falha no processo #4ed9bf29. Erro: {erro}", ex.Message);
         }
+    }
+
+    public async Task AcceptRequestPartnershipAsync(uint clientNomieesId, uint partnershipId)
+    {
+        try
+        {
+            await _repository.AcceptRequestPartnershipAsync(clientNomieesId, partnershipId);
+        }
+        catch(Exception ex)
+        {
+            ApiView.SetCode(HttpStatusCode.InternalServerError);
+            _logger.LogError("Falha no processo #4c9bb464. Erro: {erro}", ex.Message);
+        }        
     }
 }

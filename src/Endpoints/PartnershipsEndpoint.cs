@@ -13,6 +13,7 @@ public static class PartnershipsEndpoint
     {
         Post(app);
         Get(app);
+        Put(app);
     }
 
     private static void Post(WebApplication app)
@@ -33,11 +34,27 @@ public static class PartnershipsEndpoint
         .WithOpenApi();
     }
 
+    private static void Put(WebApplication app)
+    {
+        app.MapPut("/partnership/{clientId}/accet-partnership/{partnershipId}", async ([FromRoute] uint clientId, [FromRoute] uint partnershipId, [FromServices] PartnershipsMid mid) =>
+        {
+            await mid.AcceptRequestPartnershipAsync(clientId, partnershipId);
+
+            if (mid.ApiView.HttpStatusCode == HttpStatusCode.OK)
+                return Results.Ok(mid.ApiView);
+            else
+                return Results.StatusCode((int)mid.ApiView.HttpStatusCode);
+        })
+        .WithName("PutPartnership")
+        .Produces((int)HttpStatusCode.OK).Produces((int)HttpStatusCode.InternalServerError)
+        .WithOpenApi();
+    }
+
     private static void Get(WebApplication app)
     {
         app.MapGet("/partnership/{clientId}", async ([FromRoute] uint clientId, [FromServices] PartnershipsMid mid) =>
         {
-            await mid.SearchPartnershipAsync(clientId);
+            await mid.SearchPartnershipIAmNomiessAsync(clientId);
 
             if (mid.ApiView.HttpStatusCode == HttpStatusCode.OK)
                 return Results.Ok(mid.ApiView);
@@ -61,4 +78,6 @@ public static class PartnershipsEndpoint
         .Produces((int)HttpStatusCode.OK).Produces((int)HttpStatusCode.InternalServerError).Produces((int)HttpStatusCode.BadRequest)
         .WithOpenApi();
     }
+
+
 }
